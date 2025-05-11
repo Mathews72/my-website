@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Bitcoin T-Shirt Store</title>
-  <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
@@ -12,20 +13,32 @@
     <p>Live BTC Price: <span id="btcPrice">Loading...</span></p>
   </header>
 
-  <div class="products">
+  <main class="products">
     <div class="product">
-      <img src="https://via.placeholder.com/200x200?text=T-Shirt+1" alt="T-Shirt 1">
-      <h3>Classic T-Shirt</h3>
+      <img src="https://images.unsplash.com/photo-1618354691221-325c87c2fe34?auto=format&fit=crop&w=400&q=80" alt="Classic T-Shirt">
+      <h3>Classic Black T-Shirt</h3>
       <p>$25 — <span class="btcValue" data-usd="25">⏳ BTC</span></p>
       <button>Buy Now</button>
     </div>
+
     <div class="product">
-      <img src="https://via.placeholder.com/200x200?text=T-Shirt+2" alt="T-Shirt 2">
-      <h3>HODL Tee</h3>
+      <img src="https://images.unsplash.com/photo-1585386959984-a4155222baf5?auto=format&fit=crop&w=400&q=80" alt="HODL Tee">
+      <h3>HODL Forever Tee</h3>
       <p>$30 — <span class="btcValue" data-usd="30">⏳ BTC</span></p>
       <button>Buy Now</button>
     </div>
-  </div>
+
+    <div class="product">
+      <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8d?auto=format&fit=crop&w=400&q=80" alt="Minimal Shirt">
+      <h3>Minimal Crypto Tee</h3>
+      <p>$20 — <span class="btcValue" data-usd="20">⏳ BTC</span></p>
+      <button>Buy Now</button>
+    </div>
+  </main>
+
+  <footer>
+    <p>Made with ❤️ & ₿ in 2025</p>
+  </footer>
 
   <script src="script.js"></script>
 </body>

@@ -2,13 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Live Petrol Availability</title>
+  <title>Bitcoin T-Shirt Store</title>
+  <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="style.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Live Petrol Availability by Country</h1>
-  <div id="data-container"></div>
+  <header>
+    <h1>🧢 Bitcoin T-Shirt Store</h1>
+    <p>Live BTC Price: <span id="btcPrice">Loading...</span></p>
+  </header>
+
+  <div class="products">
+    <div class="product">
+      <img src="https://via.placeholder.com/200x200?text=T-Shirt+1" alt="T-Shirt 1">
+      <h3>Classic T-Shirt</h3>
+      <p>$25 — <span class="btcValue" data-usd="25">⏳ BTC</span></p>
+      <button>Buy Now</button>
+    </div>
+    <div class="product">
+      <img src="https://via.placeholder.com/200x200?text=T-Shirt+2" alt="T-Shirt 2">
+      <h3>HODL Tee</h3>
+      <p>$30 — <span class="btcValue" data-usd="30">⏳ BTC</span></p>
+      <button>Buy Now</button>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

@@ -1,38 +1,84 @@
 body {
-  font-family: sans-serif;
-  background: #f0f0f0;
+  font-family: 'Orbitron', sans-serif;
   margin: 0;
+  background: #111;
+  color: #fff;
   text-align: center;
 }
+
 header {
-  background: #1a1a1a;
-  color: white;
-  padding: 20px;
+  background: #222;
+  padding: 30px 0;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
 }
+
+h1 {
+  margin: 0;
+  font-size: 2.5em;
+  color: #f7931a;
+}
+
+#btcPrice {
+  font-size: 1.2em;
+  color: #0f0;
+}
+
 .products {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
-  padding: 20px;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 30px;
 }
+
 .product {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  margin: 15px;
-  padding: 15px;
-  width: 250px;
+  background: #1c1c1c;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 280px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
+
+.product:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px rgba(255, 165, 0, 0.3);
+}
+
 .product img {
   width: 100%;
-  border-radius: 4px;
+  height: auto;
+  display: block;
 }
+
+h3 {
+  margin: 10px 0 5px;
+}
+
+.product p {
+  font-size: 1em;
+  color: #ccc;
+}
+
 button {
   background: #f7931a;
-  color: white;
+  color: #000;
   border: none;
-  padding: 10px 15px;
-  margin-top: 10px;
+  padding: 10px 20px;
+  margin: 15px 0 20px;
+  font-weight: bold;
+  border-radius: 6px;
   cursor: pointer;
-  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #ffa000;
+}
+
+footer {
+  background: #222;
+  padding: 15px;
+  font-size: 0.9em;
+  color: #888;
 }

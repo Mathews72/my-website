@@ -1,26 +1,16 @@
-const countries = [
-  { name: "USA", petrol: 1000 },
-  { name: "Germany", petrol: 800 },
-  { name: "India", petrol: 1200 },
-  { name: "Brazil", petrol: 600 },
-  { name: "Nigeria", petrol: 400 }
-];
+async function fetchBTCPrice() {
+  const res = await fetch("https://api.coindesk.com/v1/bpi/currentprice/USD.json");
+  const data = await res.json();
+  const btcPrice = data.bpi.USD.rate_float;
+  
+  document.getElementById("btcPrice").textContent = `$${btcPrice.toFixed(2)}`;
 
-function updateData() {
-  const container = document.getElementById("data-container");
-  container.innerHTML = "";
-
-  countries.forEach(country => {
-    // Simulate live fluctuation
-    const fluctuation = Math.floor(Math.random() * 21) - 10;
-    country.petrol = Math.max(0, country.petrol + fluctuation);
-
-    const div = document.createElement("div");
-    div.className = "country";
-    div.innerHTML = `<h3>${country.name}</h3><p>${country.petrol} barrels available</p>`;
-    container.appendChild(div);
+  document.querySelectorAll(".btcValue").forEach(el => {
+    const usdPrice = parseFloat(el.getAttribute("data-usd"));
+    const btcEquivalent = usdPrice / btcPrice;
+    el.textContent = `${btcEquivalent.toFixed(6)} BTC`;
   });
 }
 
-setInterval(updateData, 2000);
-updateData();
+fetchBTCPrice();
+setInterval(fetchBTCPrice, 10000); // Update every 10 seconds

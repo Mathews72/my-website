@@ -1,12 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Drone Wind Check</title>
-  <script type="module" src="/src/main.jsx"></script>
+  <meta charset="UTF-8">
+  <title>DJI Neo Wind Check (Static)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; padding:20px; }
+    .status.safe { color: green; font-weight: bold; }
+    .status.caution { color: orange; font-weight: bold; }
+    .status.nogo { color: red; font-weight: bold; }
+  </style>
 </head>
-<body class="min-h-screen">
-  <div id="root"></div>
+<body>
+  <h2>DJI Neo Wind Check</h2>
+  <div><b>Location:</b> <span id="coords">45.4642, 9.1900</span> (Milano)</div>
+  <div><b>Altitude:</b> <span id="alt">N/A</span> m</div>
+  <div><b>Wind:</b> <span id="wind">–</span></div>
+  <div><b>Status:</b> <span id="status">–</span></div>
+
+  <script>
+    const coordsEl = document.getElementById("coords");
+    const altEl = document.getElementById("alt");
+    const windEl = document.getElementById("wind");
+    const statusEl = document.getElementById("status");
+
+    function updateStatus(wind) {
+      if (wind <= 8) {
+        statusEl.textContent = "SAFE to fly (DJI Neo limit 8 m/s)";
+        statusEl.className = "status safe";
+      } else if (wind <= 10) {
+        statusEl.textContent = "CAUTION: near limit!";
+        statusEl.className = "status caution";
+      } else {
+        statusEl.textContent = "NO-GO: too windy!";
+        statusEl.className = "status nogo";
+      }
+    }
+
+    async function fetchWind(lat, lon) {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const wind = data.current_weather?.windspeed;
+        if (wind !== undefined) {
+          windEl.textContent = wind + " m/s";
+          updateStatus(wind);
+        } else {
+          windEl.textContent = "N/A";
+        }
+      } catch(e) {
+        windEl.textContent = "Error";
+      }
+    }
+
+    // Coordinate fisse (Milano)
+    fetchWind(45.4642, 9.1900);
+  </script>
 </body>
 </html>

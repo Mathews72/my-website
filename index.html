@@ -1,61 +1,662 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>DJI Neo Wind Check (Static)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { margin:0; font-family: Arial, sans-serif; padding:20px; }
-    .status.safe { color: green; font-weight: bold; }
-    .status.caution { color: orange; font-weight: bold; }
-    .status.nogo { color: red; font-weight: bold; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobMatcher — Your job search, finally intelligent.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#000;--s1:#0a0a0a;--s2:#111;
+  --t:#f5f5f7;--t2:#a1a1a6;--t3:#6e6e73;--t4:#3a3a3c;
+  --blue:#2997ff;--green:#30d158;--yellow:#ffd60a;--purple:#bf5af2;--orange:#ff9f0a;--red:#ff453a;
+  --bd:rgba(255,255,255,0.08);--bd2:rgba(255,255,255,0.13);
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--t);font-family:'Inter',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:999;height:54px;background:rgba(0,0,0,0.78);backdrop-filter:blur(28px);border-bottom:0.5px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 48px;}
+.nl{font-size:17px;font-weight:800;letter-spacing:-.4px;}.nl span{color:var(--blue);}
+.nlinks{display:flex;gap:32px;}.nlinks a{font-size:13px;color:var(--t2);text-decoration:none;font-weight:500;transition:color .2s;}.nlinks a:hover{color:var(--t);}
+.nr{display:flex;align-items:center;gap:12px;}
+.nlog{font-size:13px;color:var(--t2);background:none;border:none;font-family:inherit;cursor:pointer;font-weight:500;}
+.ncta{background:var(--blue);color:#fff;border:none;border-radius:980px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;}
+.ncta:hover{background:#0077ed;transform:scale(1.03);}
+
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:140px 40px 0;position:relative;overflow:hidden;}
+.hglow{position:absolute;inset:0;background:radial-gradient(ellipse 85% 55% at 50% 28%,rgba(0,100,220,0.24),transparent 65%),radial-gradient(ellipse 50% 35% at 80% 60%,rgba(191,90,242,0.14),transparent 60%);pointer-events:none;}
+.hbadge{display:inline-flex;align-items:center;gap:7px;background:rgba(41,151,255,0.12);border:0.5px solid rgba(41,151,255,0.28);border-radius:980px;padding:6px 15px;font-size:12px;font-weight:500;color:var(--blue);margin-bottom:26px;opacity:0;animation:fu .5s .05s forwards;}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(41,151,255,0.4);}50%{opacity:.5;box-shadow:0 0 0 4px rgba(41,151,255,0);}}
+.htitle{font-size:clamp(46px,8vw,100px);font-weight:800;letter-spacing:-.05em;line-height:1.0;margin-bottom:24px;background:linear-gradient(170deg,#fff 45%,rgba(255,255,255,0.38));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:fu .65s .15s forwards;max-width:920px;}
+.hsub{font-size:clamp(17px,2vw,21px);font-weight:400;color:var(--t2);max-width:560px;line-height:1.7;margin:0 auto 36px;opacity:0;animation:fu .65s .28s forwards;}
+.hsub strong{color:var(--t);font-weight:600;}
+.hctag{display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;animation:fu .65s .42s forwards;margin-bottom:68px;}
+.hctarow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.btnhero{background:var(--blue);color:#fff;border:none;border-radius:980px;padding:16px 40px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:-.02em;transition:all .25s;}
+.btnhero:hover{background:#0077ed;box-shadow:0 12px 40px rgba(0,122,255,0.45);transform:translateY(-2px);}
+.hmic{font-size:12px;color:var(--t3);display:flex;align-items:center;gap:14px;}
+.hmic span{display:flex;align-items:center;gap:4px;}
+
+.hvisual{width:min(920px,92vw);opacity:0;animation:fu .8s .58s forwards;position:relative;}
+.hframe{background:#0d0d0f;border:0.5px solid rgba(255,255,255,0.18);border-radius:16px;overflow:hidden;box-shadow:0 80px 160px rgba(0,0,0,.95);}
+.hchrome{height:36px;background:#1c1c1e;border-bottom:0.5px solid var(--bd);display:flex;align-items:center;padding:0 13px;gap:7px;}
+.hcdot{width:11px;height:11px;border-radius:50%;}
+.hcurl{margin:0 auto;background:#2c2c2e;border-radius:5px;padding:4px 16px;font-size:10px;color:#636366;}
+.hbody{padding:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.jcard{background:#1c1c1e;border:0.5px solid var(--bd);border-radius:11px;padding:13px 14px;opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s,box-shadow .3s;cursor:pointer;}
+.jcard:hover{box-shadow:0 8px 24px rgba(0,0,0,.6);transform:translateY(-2px)!important;border-color:var(--bd2);}
+.jcard.show{opacity:1;transform:translateY(0);}
+.jcsrc{display:flex;align-items:center;gap:5px;margin-bottom:9px;}
+.jcsdot{width:6px;height:6px;border-radius:50%;}
+.jcslbl{font-size:9px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.6px;}
+.jctitle{font-size:12px;font-weight:700;color:var(--t);margin-bottom:3px;line-height:1.3;}
+.jcco{font-size:10px;color:var(--t2);margin-bottom:10px;}
+.jcmrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.jcmlbl{font-size:9px;color:var(--t3);}
+.jcmval{font-size:13px;font-weight:800;letter-spacing:-.3px;}
+.jcbar{height:3px;background:var(--t4);border-radius:2px;overflow:hidden;}
+.jcfill{height:100%;border-radius:2px;transition:width 1s ease;}
+.jctags{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;}
+.jctag{background:rgba(255,255,255,.05);border:0.5px solid var(--bd);color:var(--t3);border-radius:5px;padding:2px 6px;font-size:9px;font-weight:500;}
+.hstat{border-top:0.5px solid var(--bd);padding:10px 16px;display:flex;align-items:center;gap:24px;background:#0d0d0f;font-size:11px;color:var(--t3);}
+.hstat strong{color:var(--t2);font-weight:600;}
+.hfade{position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to top,#000,transparent);pointer-events:none;border-radius:0 0 16px 16px;}
+
+.sband{padding:72px 48px;border-top:0.5px solid var(--bd);border-bottom:0.5px solid var(--bd);background:rgba(255,255,255,.02);}
+.sinner{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);text-align:center;gap:24px;}
+.sval{font-size:clamp(38px,5vw,60px);font-weight:800;letter-spacing:-.05em;margin-bottom:6px;line-height:1;}
+.slbl{font-size:14px;color:var(--t2);}
+.ssub{font-size:11px;color:var(--t3);margin-top:2px;}
+.gblue{background:linear-gradient(135deg,#2997ff,#30d158);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.gpurp{background:linear-gradient(135deg,#bf5af2,#2997ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+.wrap{padding:110px 48px;max-width:1040px;margin:0 auto;}
+.wrap.center{text-align:center;}
+.ey{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;}
+.h2{font-size:clamp(30px,5vw,56px);font-weight:800;letter-spacing:-.04em;line-height:1.08;margin-bottom:18px;}
+.h2s{font-size:18px;font-weight:400;color:var(--t2);max-width:500px;margin:0 auto 60px;line-height:1.65;}
+
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border-radius:20px;overflow:hidden;border:0.5px solid var(--bd);}
+.step{background:rgba(255,255,255,.035);padding:44px 36px;transition:background .25s;}.step:hover{background:rgba(255,255,255,.065);}
+.stepn{font-size:48px;font-weight:800;letter-spacing:-.05em;margin-bottom:16px;line-height:1;}
+.stept{font-size:18px;font-weight:700;margin-bottom:10px;letter-spacing:-.02em;}
+.stepd{font-size:14px;color:var(--t2);line-height:1.7;}
+
+.wccard{background:#0d0d0f;border:0.5px solid var(--bd2);border-radius:20px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.6);}
+.wchdr{padding:16px 22px;background:#111;border-bottom:0.5px solid var(--bd);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.spill{flex:1;min-width:200px;background:#1c1c1e;border:0.5px solid var(--bd2);border-radius:9px;padding:10px 14px;display:flex;align-items:center;gap:9px;}
+.sptext{font-size:12px;font-weight:600;color:var(--t);}
+.spdiv{width:1px;height:14px;background:var(--t4);}
+.sploc{font-size:12px;color:var(--t2);}
+.sgo{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;}
+.sbdgs{display:flex;gap:6px;}
+.sbdg{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;font-size:10px;font-weight:700;}
+.sbli{background:rgba(0,119,181,.12);border:0.5px solid rgba(0,119,181,.3);color:#4db8ff;}
+.sbin{background:rgba(232,113,26,.1);border:0.5px solid rgba(232,113,26,.3);color:#ff9f0a;}
+.sbgl{background:rgba(66,133,244,.1);border:0.5px solid rgba(66,133,244,.3);color:#5ac8fa;}
+.wccols{display:grid;grid-template-columns:repeat(3,1fr);border-top:0.5px solid var(--bd);}
+.wccol{padding:16px;border-right:0.5px solid var(--bd);}.wccol:last-child{border-right:none;}
+.colhdr{display:flex;align-items:center;gap:6px;margin-bottom:12px;}
+.chdot{width:7px;height:7px;border-radius:50%;}
+.chlbl{font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;}
+.chcnt{margin-left:auto;font-size:9px;border-radius:7px;padding:1px 7px;font-weight:600;}
+.mj{background:#1c1c1e;border:0.5px solid var(--bd);border-radius:9px;padding:10px 12px;margin-bottom:7px;}
+.mjt{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:3px;}
+.mjtitle{font-size:11px;font-weight:600;color:var(--t);}
+.mjsco{font-size:11px;font-weight:800;}
+.mjco{font-size:9px;color:var(--t2);margin-bottom:7px;}
+.mjbar{height:2px;background:var(--t4);border-radius:1px;overflow:hidden;}
+.mjfill{height:100%;border-radius:1px;}
+.wins{background:rgba(41,151,255,.07);border:0.5px solid rgba(41,151,255,.2);border-radius:9px;padding:11px 13px;margin-bottom:7px;}
+.winl{font-size:9px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px;}
+.winv{font-size:11px;color:var(--t);font-weight:500;margin-bottom:3px;}
+.wins2{font-size:9px;color:var(--t2);}
+.wcsklrow{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.wcsklname{font-size:9px;color:var(--t2);width:48px;flex-shrink:0;}
+.wcsklbg{flex:1;height:3px;background:var(--t4);border-radius:2px;overflow:hidden;}
+.wcsklfill{height:100%;border-radius:2px;}
+.wcsklpct{font-size:9px;width:26px;text-align:right;flex-shrink:0;font-weight:600;}
+.wcfoot{padding:10px 22px;background:#111;border-top:0.5px solid var(--bd);display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.wfi{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--t3);}
+.wfd{width:7px;height:7px;border-radius:2px;}
+.wfr{margin-left:auto;font-size:10px;color:var(--t3);}
+
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border-radius:20px;overflow:hidden;border:0.5px solid var(--bd);margin-top:52px;}
+.fc{background:rgba(255,255,255,.04);padding:40px 32px;transition:background .2s;}.fc:hover{background:rgba(255,255,255,.07);}
+.fci{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:16px;}
+.fct{font-size:17px;font-weight:700;margin-bottom:8px;letter-spacing:-.02em;}
+.fcd{font-size:14px;color:var(--t2);line-height:1.7;}
+
+.migrid{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-top:52px;}
+.micard{background:#0d0d0f;border:0.5px solid var(--bd2);border-radius:16px;padding:22px;position:relative;overflow:hidden;}
+.micard::before{content:'';position:absolute;top:-80px;right:-80px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(41,151,255,0.15),transparent 70%);pointer-events:none;}
+.miclbl{font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px;}
+.heatgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:18px;}
+.hcell{background:#1c1c1e;border-radius:9px;padding:11px 8px;text-align:center;}
+.hnum{font-size:17px;font-weight:800;line-height:1;}
+.hco{font-size:8px;color:var(--t3);margin-top:2px;}
+.htr{font-size:9px;margin-top:3px;}
+.sbrow{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.sbname{font-size:9px;color:var(--t2);width:50px;flex-shrink:0;}
+.sbbg{flex:1;height:3px;background:#1c1c1e;border-radius:2px;overflow:hidden;}
+.sbf{height:100%;border-radius:2px;background:var(--blue);}
+.sbpct{font-size:9px;color:var(--t3);width:24px;text-align:right;flex-shrink:0;}
+.icards{display:flex;flex-direction:column;gap:10px;}
+.ic{background:#0d0d0f;border:0.5px solid var(--bd2);border-radius:14px;padding:18px;position:relative;overflow:hidden;flex:1;}
+.ic::before{content:'';position:absolute;top:-50px;right:-50px;width:130px;height:130px;border-radius:50%;pointer-events:none;}
+.icg::before{background:radial-gradient(circle,rgba(48,209,88,0.2),transparent 70%);}
+.ico::before{background:radial-gradient(circle,rgba(255,159,10,0.18),transparent 70%);}
+.icb::before{background:radial-gradient(circle,rgba(41,151,255,0.18),transparent 70%);}
+.ictag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;}
+.ictitle{font-size:13px;font-weight:700;color:var(--t);margin-bottom:5px;line-height:1.4;}
+.icbody{font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:10px;}
+.icpills{display:flex;gap:5px;flex-wrap:wrap;}
+.icpill{border-radius:7px;padding:3px 9px;font-size:9px;font-weight:700;}
+
+.showcase{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;padding:80px 48px;max-width:1040px;margin:0 auto;border-top:0.5px solid rgba(255,255,255,.06);}
+.showcase.rev{direction:rtl;}.showcase.rev>*{direction:ltr;}
+.shey{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:12px;}
+.sht{font-size:clamp(24px,4vw,40px);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:14px;}
+.shd{font-size:15px;color:var(--t2);line-height:1.75;}
+.aframe{background:#1c1c1e;border:0.5px solid rgba(255,255,255,.15);border-radius:13px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.7);}
+.afch{height:29px;background:#2c2c2e;border-bottom:0.5px solid var(--bd);display:flex;align-items:center;padding:0 11px;gap:5px;}
+.afcd{width:9px;height:9px;border-radius:50%;}
+.afcl{margin:0 auto;font-size:8px;color:#636366;}
+.afcon{position:relative;overflow:hidden;font-family:'Inter',sans-serif;background:#1c1c1e;}
+.affd{position:absolute;bottom:0;left:0;right:0;height:44px;background:linear-gradient(to top,#1c1c1e,transparent);pointer-events:none;}
+.ftb{display:flex;align-items:center;gap:7px;padding:8px 14px;background:#2c2c2e;border-bottom:0.5px solid var(--bd);}
+.ffi{background:#3a3a3c;border:0.5px solid var(--bd);border-radius:5px;color:#aeaeb2;padding:3px 8px;font-size:9px;}
+.ftbl{width:100%;border-collapse:collapse;font-size:10px;}
+.ftbl th{background:#2c2c2e;color:#636366;font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 10px;border-bottom:0.5px solid var(--bd);text-align:center;white-space:nowrap;}
+.ftbl th:first-child{text-align:left;}
+.ftbl td{padding:6px 8px;border-bottom:0.5px solid rgba(255,255,255,.04);color:#aeaeb2;text-align:center;vertical-align:middle;white-space:nowrap;}
+.ftbl td:first-child{text-align:left;color:#f5f5f7;font-weight:600;}
+.fhb{display:inline-flex;align-items:center;gap:4px;justify-content:center;}
+.fhbbg{width:36px;height:3px;background:#3a3a3c;border-radius:2px;overflow:hidden;}
+.fhbf{height:100%;border-radius:2px;}
+.fhbn{font-size:10px;font-weight:800;min-width:18px;text-align:right;}
+.fco{width:19px;height:19px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:8px;color:#fff;margin-right:6px;vertical-align:middle;flex-shrink:0;}
+.fjb{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:16px;border-radius:8px;font-weight:700;font-size:9px;padding:0 5px;background:rgba(10,132,255,.12);color:#2997ff;}
+.fst{display:inline-block;padding:1px 5px;border-radius:6px;background:#2c2c2e;color:#aeaeb2;font-size:8px;margin:0 1px;}
+.fcotop{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#2c2c2e;border-bottom:0.5px solid var(--bd);}
+.fcoav{width:26px;height:26px;border-radius:6px;background:#4285f4;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;color:#fff;}
+.fhms{background:rgba(48,209,88,.15);color:#30d158;border:0.5px solid rgba(48,209,88,.3);border-radius:12px;padding:2px 10px;font-size:9px;font-weight:700;margin-left:auto;}
+.fmet{display:grid;grid-template-columns:repeat(5,1fr);background:#2c2c2e;border-bottom:0.5px solid var(--bd);}
+.fdm{padding:8px 10px;border-right:0.5px solid var(--bd);}.fdm:last-child{border-right:none;}
+.fdml{font-size:7px;font-weight:700;color:#636366;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.fdmv{font-size:13px;font-weight:800;letter-spacing:-.3px;}
+.ftabs{display:flex;gap:1px;padding:0 12px;background:#2c2c2e;border-bottom:0.5px solid var(--bd);}
+.ftab{background:transparent;border:none;border-bottom:2px solid transparent;color:#636366;font-size:10px;font-weight:500;font-family:'Inter',sans-serif;padding:7px 12px;margin-bottom:-1px;}
+.ftab.act{color:#0a84ff;border-bottom-color:#0a84ff;}
+.fdash{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px;}
+.fdc{background:#2c2c2e;border:0.5px solid var(--bd);border-radius:8px;padding:10px;}
+.fdct{font-size:7px;font-weight:700;color:#636366;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.fskr{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.fskn{font-size:9px;color:#aeaeb2;width:58px;flex-shrink:0;}
+.fskb{flex:1;height:3px;background:#3a3a3c;border-radius:2px;overflow:hidden;}
+.fskf{height:100%;border-radius:2px;}
+.fskp{font-size:8px;width:22px;text-align:right;flex-shrink:0;}
+.falerts{padding:0 12px 10px;}
+.falert{border-radius:6px;padding:7px 9px;margin-bottom:5px;border-left:2px solid #0a84ff;}
+.falert.warn{border-left-color:#ff9f0a;}
+.fat{font-size:9px;font-weight:600;color:#f5f5f7;margin-bottom:2px;}
+.fas{font-size:8px;color:#636366;line-height:1.4;}
+
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:52px;text-align:left;}
+.tcard{background:#0d0d0f;border:0.5px solid var(--bd2);border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:16px;transition:border-color .2s;}
+.tcard:hover{border-color:rgba(255,255,255,.2);}
+.tstars{color:var(--yellow);font-size:13px;letter-spacing:2px;}
+.tquote{font-size:15px;line-height:1.7;color:var(--t2);flex:1;}
+.tquote strong{color:var(--t);font-weight:600;}
+.tauth{display:flex;align-items:center;gap:11px;}
+.tav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0;}
+.tname{font-size:13px;font-weight:700;color:var(--t);}
+.trole{font-size:11px;color:var(--t3);margin-top:1px;}
+.tres{display:inline-flex;align-items:center;gap:5px;background:rgba(48,209,88,0.12);border:0.5px solid rgba(48,209,88,0.28);border-radius:7px;padding:3px 9px;font-size:10px;font-weight:600;color:var(--green);}
+
+.pgrid{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:12px;margin-top:52px;text-align:left;align-items:start;}
+.pcard{background:#0d0d0f;border:0.5px solid var(--bd2);border-radius:18px;padding:28px;position:relative;overflow:hidden;}
+.pcard.feat{background:#0a1628;border-color:rgba(41,151,255,.4);box-shadow:0 0 60px rgba(41,151,255,0.12);}
+.pcard.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#2997ff,transparent);}
+.pcbdg{display:inline-block;background:var(--blue);color:#fff;border-radius:7px;padding:3px 10px;font-size:10px;font-weight:700;margin-bottom:14px;}
+.pcname{font-size:15px;font-weight:800;margin-bottom:6px;}
+.pcdesc{font-size:12px;color:var(--t2);margin-bottom:20px;line-height:1.6;}
+.pcprice{margin-bottom:24px;}
+.pcamt{font-size:40px;font-weight:800;letter-spacing:-.05em;line-height:1;}
+.pcamt sup{font-size:18px;font-weight:600;vertical-align:top;margin-top:6px;display:inline-block;}
+.pcper{font-size:12px;color:var(--t3);margin-top:4px;}
+.pcbtn{width:100%;padding:11px;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;border:none;cursor:pointer;margin-bottom:22px;transition:all .2s;}
+.pcbg{background:rgba(255,255,255,.06);color:var(--t);border:0.5px solid var(--bd2);}.pcbg:hover{background:rgba(255,255,255,.1);}
+.pcbp{background:var(--blue);color:#fff;}.pcbp:hover{background:#0077ed;box-shadow:0 6px 24px rgba(0,122,255,.35);}
+.pcdiv{height:0.5px;background:var(--bd);margin-bottom:18px;}
+.pcf{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--t2);margin-bottom:10px;line-height:1.5;}
+.pck{color:var(--green);font-size:13px;flex-shrink:0;margin-top:1px;}
+.pcdim{color:var(--t3);}
+.pctag{font-size:10px;font-weight:600;background:rgba(255,214,10,0.1);color:var(--yellow);border-radius:5px;padding:1px 6px;margin-left:5px;}
+
+.fcta{text-align:center;padding:130px 48px;position:relative;overflow:hidden;}
+.fctabg{position:absolute;inset:0;background:radial-gradient(ellipse 75% 65% at 50% 50%,rgba(0,100,220,0.18),transparent 65%);}
+.fctactr{font-size:13px;color:var(--t3);margin-bottom:16px;position:relative;}
+.fctactr strong{color:var(--green);font-weight:700;}
+.fctat{font-size:clamp(38px,7vw,80px);font-weight:800;letter-spacing:-.05em;line-height:1.0;margin-bottom:20px;background:linear-gradient(170deg,#fff 55%,rgba(255,255,255,0.36));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;}
+.fctas{font-size:18px;color:var(--t2);margin-bottom:40px;font-weight:400;position:relative;}
+.fctarow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;margin-bottom:14px;}
+.fctamic{font-size:12px;color:var(--t3);position:relative;display:flex;align-items:center;gap:16px;justify-content:center;}
+
+footer{border-top:0.5px solid var(--bd);padding:48px;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:32px;max-width:1040px;margin:0 auto;}
+.fbrand{display:flex;flex-direction:column;gap:12px;}
+.flogo{font-size:17px;font-weight:800;letter-spacing:-.3px;}.flogo span{color:var(--blue);}
+.ftag{font-size:12px;color:var(--t3);line-height:1.6;max-width:200px;}
+.fct{font-size:12px;font-weight:700;color:var(--t);margin-bottom:14px;}
+.flink{display:block;font-size:13px;color:var(--t2);text-decoration:none;margin-bottom:9px;transition:color .2s;}.flink:hover{color:var(--t);}
+.fbot{border-top:0.5px solid var(--bd);padding:20px 48px;display:flex;align-items:center;justify-content:space-between;max-width:1040px;margin:0 auto;}
+.fcopy{font-size:12px;color:var(--t3);}
+.flegal{display:flex;gap:20px;}.flegal a{font-size:12px;color:var(--t3);text-decoration:none;}.flegal a:hover{color:var(--t2);}
+
+@keyframes fu{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.fi{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+.fi.vis{opacity:1;transform:translateY(0);}
+.d1{transition-delay:.05s;}.d2{transition-delay:.12s;}.d3{transition-delay:.19s;}.d4{transition-delay:.26s;}
+
+@media(max-width:800px){
+  nav{padding:0 20px;}.nlinks{display:none;}
+  .hero{padding:110px 20px 0;}
+  .hbody{grid-template-columns:1fr 1fr;}
+  .sinner{grid-template-columns:repeat(2,1fr);}
+  .steps,.fgrid,.pgrid,.tgrid{grid-template-columns:1fr;}
+  .showcase,.migrid{grid-template-columns:1fr;gap:32px;padding-left:20px;padding-right:20px;}
+  .showcase.rev{direction:ltr;}
+  .wrap{padding:70px 20px;}
+  footer{grid-template-columns:1fr 1fr;padding:32px 20px;}
+  .fbot{flex-direction:column;gap:12px;padding:16px 20px;text-align:center;}
+}
+</style>
 </head>
 <body>
-  <h2>DJI Neo Wind Check</h2>
-  <div><b>Location:</b> <span id="coords">45.4642, 9.1900</span> (Milano)</div>
-  <div><b>Altitude:</b> <span id="alt">N/A</span> m</div>
-  <div><b>Wind:</b> <span id="wind">–</span></div>
-  <div><b>Status:</b> <span id="status">–</span></div>
 
-  <script>
-    const coordsEl = document.getElementById("coords");
-    const altEl = document.getElementById("alt");
-    const windEl = document.getElementById("wind");
-    const statusEl = document.getElementById("status");
+<nav>
+  <div class="nl">Job<span>Matcher</span></div>
+  <div class="nlinks">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+  </div>
+  <div class="nr">
+    <button class="nlog">Log in</button>
+    <button class="ncta">Get started free</button>
+  </div>
+</nav>
 
-    function updateStatus(wind) {
-      if (wind <= 8) {
-        statusEl.textContent = "SAFE to fly (DJI Neo limit 8 m/s)";
-        statusEl.className = "status safe";
-      } else if (wind <= 10) {
-        statusEl.textContent = "CAUTION: near limit!";
-        statusEl.className = "status caution";
-      } else {
-        statusEl.textContent = "NO-GO: too windy!";
-        statusEl.className = "status nogo";
-      }
-    }
+<!-- HERO -->
+<div class="hero">
+  <div class="hglow"></div>
+  <div class="hbadge"><span class="pulse"></span>Now scraping LinkedIn · Indeed · Glassdoor</div>
+  <h1 class="htitle">Your job search,<br>finally intelligent.</h1>
+  <p class="hsub">JobMatcher scrapes every major job board, <strong>scores each role against your real skills</strong>, and shows you exactly where you stand — so you apply smarter, not harder.</p>
+  <div class="hctag">
+    <div class="hctarow"><button class="btnhero">Start matching for free →</button></div>
+    <div class="hmic">
+      <span>🔒 No credit card</span>
+      <span>⚡ Ready in 2 minutes</span>
+      <span>✓ Free for 30 days</span>
+    </div>
+  </div>
+  <div class="hvisual">
+    <div class="hframe">
+      <div class="hchrome">
+        <div class="hcdot" style="background:#ff5f57;"></div>
+        <div class="hcdot" style="background:#febc2e;"></div>
+        <div class="hcdot" style="background:#28c840;"></div>
+        <div class="hcurl">jobmatcher.app — 78 roles found · sorted by match</div>
+      </div>
+      <div class="hbody" id="hcards"></div>
+      <div class="hstat">
+        <div>Scraped <strong>78 roles</strong> from 3 sources</div>
+        <div>Avg match <strong style="color:#30d158;">74%</strong></div>
+        <div>Top pick: <strong>Google DeepMind · 92%</strong></div>
+        <div style="margin-left:auto;">⚡ Done in <strong>4.2s</strong></div>
+      </div>
+    </div>
+    <div class="hfade"></div>
+  </div>
+</div>
 
-    async function fetchWind(lat, lon) {
-      try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
-        const res = await fetch(url);
-        const data = await res.json();
-        const wind = data.current_weather?.windspeed;
-        if (wind !== undefined) {
-          windEl.textContent = wind + " m/s";
-          updateStatus(wind);
-        } else {
-          windEl.textContent = "N/A";
-        }
-      } catch(e) {
-        windEl.textContent = "Error";
-      }
-    }
+<!-- STATS -->
+<div class="sband">
+  <div class="sinner">
+    <div class="fi d1"><div class="sval gblue">12,400</div><div class="slbl">Active users</div><div class="ssub">across 40+ countries</div></div>
+    <div class="fi d2"><div class="sval" style="color:var(--green);">2.4M</div><div class="slbl">Roles analysed</div><div class="ssub">this month alone</div></div>
+    <div class="fi d3"><div class="sval" style="color:var(--yellow);">68%</div><div class="slbl">Avg response rate</div><div class="ssub">vs 8% industry avg</div></div>
+    <div class="fi d4"><div class="sval gpurp">3.2×</div><div class="slbl">More interviews</div><div class="ssub">within 30 days</div></div>
+  </div>
+</div>
 
-    // Coordinate fisse (Milano)
-    fetchWind(45.4642, 9.1900);
-  </script>
+<!-- HOW IT WORKS -->
+<div class="wrap center" id="how">
+  <div class="ey fi">How it works</div>
+  <h2 class="h2 fi">Three steps to your next role.</h2>
+  <p class="h2s fi">No setup hassle. No spreadsheets. Just signal.</p>
+  <div class="steps fi">
+    <div class="step"><div class="stepn" style="background:linear-gradient(135deg,#2997ff,#30d158);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">01</div><div class="stept">Add your skills</div><div class="stepd">Tell JobMatcher what you know — or import from your LinkedIn profile. Takes 60 seconds. The more precise, the better your matches.</div></div>
+    <div class="step"><div class="stepn" style="background:linear-gradient(135deg,#30d158,#ffd60a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">02</div><div class="stept">Search any role</div><div class="stepd">Type a title and location. JobMatcher hits LinkedIn, Indeed and Glassdoor simultaneously, pulls every match, and deduplicates the results.</div></div>
+    <div class="step"><div class="stepn" style="background:linear-gradient(135deg,#ffd60a,#bf5af2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">03</div><div class="stept">Apply smarter</div><div class="stepd">Every role gets a real skill-match score. See exactly where you stand — and which skills to develop to unlock 90%+ matches.</div></div>
+  </div>
+</div>
+
+<!-- SCRAPING VISUAL -->
+<div class="wrap" style="padding-top:0;">
+  <div class="wccard fi">
+    <div class="wchdr">
+      <div class="spill">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#636366" stroke-width="2"/><path d="M16.5 16.5L21 21" stroke="#636366" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="sptext">Data Engineer</span><div class="spdiv"></div>
+        <svg width="11" height="13" fill="none" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#636366"/></svg>
+        <span class="sploc">Switzerland</span>
+      </div>
+      <div class="sgo">Search all boards →</div>
+      <div class="sbdgs">
+        <div class="sbdg sbli">in LinkedIn</div>
+        <div class="sbdg sbin">in Indeed</div>
+        <div class="sbdg sbgl">gl Glassdoor</div>
+      </div>
+    </div>
+    <div class="wccols">
+      <div class="wccol">
+        <div class="colhdr"><div class="chdot" style="background:#0077b5;"></div><span class="chlbl">LinkedIn</span><span class="chcnt" style="background:rgba(0,119,181,.12);color:#4db8ff;">49</span></div>
+        <div class="mj"><div class="mjt"><span class="mjtitle">Senior Data Engineer</span><span class="mjsco" style="color:#30d158;">92%</span></div><div class="mjco">Google DeepMind · Zürich</div><div class="mjbar"><div class="mjfill" style="width:92%;background:#30d158;"></div></div></div>
+        <div class="mj"><div class="mjt"><span class="mjtitle">Data Platform Lead</span><span class="mjsco" style="color:#30d158;">87%</span></div><div class="mjco">Stripe · Remote EU</div><div class="mjbar"><div class="mjfill" style="width:87%;background:#30d158;"></div></div></div>
+        <div class="mj"><div class="mjt"><span class="mjtitle">Analytics Engineer</span><span class="mjsco" style="color:#ffd60a;">71%</span></div><div class="mjco">Zalando · Berlin</div><div class="mjbar"><div class="mjfill" style="width:71%;background:#ffd60a;"></div></div></div>
+        <div class="mj" style="opacity:.45;"><div class="mjt"><span class="mjtitle">Data Engineer II</span><span class="mjsco" style="color:#ffd60a;">65%</span></div><div class="mjco">Siemens · Zürich</div><div class="mjbar"><div class="mjfill" style="width:65%;background:#ffd60a;"></div></div></div>
+      </div>
+      <div class="wccol">
+        <div class="colhdr"><div class="chdot" style="background:#e8711a;"></div><span class="chlbl">Indeed</span><span class="chcnt" style="background:rgba(232,113,26,.1);color:#ff9f0a;">22</span></div>
+        <div class="mj"><div class="mjt"><span class="mjtitle">Data Infra Engineer</span><span class="mjsco" style="color:#30d158;">84%</span></div><div class="mjco">Snowflake · Remote</div><div class="mjbar"><div class="mjfill" style="width:84%;background:#30d158;"></div></div></div>
+        <div class="mj"><div class="mjt"><span class="mjtitle">ML Data Engineer</span><span class="mjsco" style="color:#30d158;">79%</span></div><div class="mjco">Spotify · Stockholm</div><div class="mjbar"><div class="mjfill" style="width:79%;background:#30d158;"></div></div></div>
+        <div class="mj"><div class="mjt"><span class="mjtitle">Backend Data Eng.</span><span class="mjsco" style="color:#ffd60a;">65%</span></div><div class="mjco">Nestlé · Vevey</div><div class="mjbar"><div class="mjfill" style="width:65%;background:#ffd60a;"></div></div></div>
+        <div class="mj" style="opacity:.45;"><div class="mjt"><span class="mjtitle">Data Ops Engineer</span><span class="mjsco" style="color:#ff453a;">42%</span></div><div class="mjco">ABB · Baden</div><div class="mjbar"><div class="mjfill" style="width:42%;background:#ff453a;"></div></div></div>
+      </div>
+      <div class="wccol">
+        <div class="colhdr"><div class="chdot" style="background:#4285f4;"></div><span class="chlbl">Glassdoor</span><span class="chcnt" style="background:rgba(66,133,244,.1);color:#5ac8fa;">7</span></div>
+        <div class="mj"><div class="mjt"><span class="mjtitle">Solutions Engineer</span><span class="mjsco" style="color:#30d158;">81%</span></div><div class="mjco">Snowflake · Remote EU</div><div class="mjbar"><div class="mjfill" style="width:81%;background:#30d158;"></div></div></div>
+        <div class="wins"><div class="winl">⚡ Live insight</div><div class="winv">78 roles across 3 sources</div><div class="wins2">Avg match <strong style="color:#30d158;">74%</strong> · Top: Google DeepMind</div></div>
+        <div class="mj">
+          <div style="font-size:8px;font-weight:700;color:#636366;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;">Skill gap detected</div>
+          <div class="wcsklrow"><span class="wcsklname">dbt</span><div class="wcsklbg"><div class="wcsklfill" style="width:38%;background:#ff9f0a;"></div></div><span class="wcsklpct" style="color:#ff9f0a;">38%</span></div>
+          <div class="wcsklrow"><span class="wcsklname">Airflow</span><div class="wcsklbg"><div class="wcsklfill" style="width:52%;background:#ff9f0a;"></div></div><span class="wcsklpct" style="color:#ff9f0a;">52%</span></div>
+          <div class="wcsklrow"><span class="wcsklname">Spark</span><div class="wcsklbg"><div class="wcsklfill" style="width:61%;background:#ffd60a;"></div></div><span class="wcsklpct" style="color:#ffd60a;">61%</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="wcfoot">
+      <div class="wfi"><div class="wfd" style="background:#30d158;"></div>80–100% Strong fit</div>
+      <div class="wfi"><div class="wfd" style="background:#ffd60a;"></div>60–79% Good potential</div>
+      <div class="wfi"><div class="wfd" style="background:#ff453a;"></div>&lt;60% Skill gap</div>
+      <div class="wfr">⚡ Scraped in 4.2s · 3 sources · 78 total</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="wrap center" id="features" style="padding-bottom:0;">
+  <div class="ey fi">Everything you need</div>
+  <h2 class="h2 fi">Every detail that matters.</h2>
+  <p class="h2s fi">From first application to final offer, complete visibility at every step.</p>
+  <div class="fgrid fi">
+    <div class="fc"><div class="fci" style="background:rgba(41,151,255,.15);">📊</div><div class="fct">Live analytics</div><div class="fcd">Real-time KPIs, funnel, match distribution and history — from your actual data.</div></div>
+    <div class="fc"><div class="fci" style="background:rgba(48,209,88,.15);">🎯</div><div class="fct">Skill matching</div><div class="fcd">Every role gets a precise compatibility score. Know where you stand before applying.</div></div>
+    <div class="fc"><div class="fci" style="background:rgba(191,90,242,.15);">🏢</div><div class="fct">Company Intelligence</div><div class="fcd">HMS score, Glassdoor rating, revenue, headcount and hiring velocity per company.</div></div>
+    <div class="fc"><div class="fci" style="background:rgba(255,214,10,.15);">🗂️</div><div class="fct">Groups & Kanban</div><div class="fcd">Organise applications into drag-and-drop groups with powerful filters.</div></div>
+    <div class="fc"><div class="fci" style="background:rgba(90,200,250,.15);">🔍</div><div class="fct">Multi-source scraping</div><div class="fcd">LinkedIn, Indeed and Glassdoor hit simultaneously. Deduped and scored instantly.</div></div>
+    <div class="fc"><div class="fci" style="background:rgba(255,159,10,.15);">📈</div><div class="fct">Live reports</div><div class="fcd">Auto-generated insights on hiring momentum, top skills and best locations per company.</div></div>
+  </div>
+</div>
+
+<!-- MARKET INTEL VISUAL -->
+<div class="wrap" style="padding-top:80px;padding-bottom:0;">
+  <div style="text-align:center;margin-bottom:52px;">
+    <div class="ey fi">Market Intelligence</div>
+    <h2 class="h2 fi">The hiring landscape,<br>mapped for you.</h2>
+    <p class="h2s fi" style="margin-bottom:0;">Every company you search gets scored, tracked and benchmarked — so you always know where the real opportunities are.</p>
+  </div>
+  <div class="migrid">
+    <div class="micard fi">
+      <div class="miclbl">Hiring Activity Heatmap — your target companies</div>
+      <div class="heatgrid">
+        <div class="hcell" style="border:0.5px solid rgba(48,209,88,.25);"><div class="hnum" style="color:#30d158;">47</div><div class="hco">Google</div><div class="htr">🚀 Hot</div></div>
+        <div class="hcell" style="border:0.5px solid rgba(48,209,88,.2);"><div class="hnum" style="color:#30d158;">31</div><div class="hco">Stripe</div><div class="htr">🚀 Hot</div></div>
+        <div class="hcell" style="border:0.5px solid rgba(41,151,255,.2);"><div class="hnum" style="color:#2997ff;">28</div><div class="hco">Snowflake</div><div class="htr">📈 Rising</div></div>
+        <div class="hcell" style="border:0.5px solid rgba(255,214,10,.2);"><div class="hnum" style="color:#ffd60a;">22</div><div class="hco">Zalando</div><div class="htr">📈 Rising</div></div>
+        <div class="hcell" style="border:0.5px solid rgba(255,214,10,.15);"><div class="hnum" style="color:#ffd60a;">19</div><div class="hco">Siemens</div><div class="htr">⚖️ Stable</div></div>
+        <div class="hcell" style="border:0.5px solid rgba(48,209,88,.12);"><div class="hnum" style="color:#30d158;">15</div><div class="hco">Spotify</div><div class="htr">📈 Rising</div></div>
+        <div class="hcell" style="border:0.5px solid rgba(99,99,102,.15);"><div class="hnum" style="color:#636366;">11</div><div class="hco">Nestlé</div><div class="htr" style="color:#636366;">📉 Slow</div></div>
+        <div class="hcell" style="border:0.5px solid rgba(99,99,102,.12);"><div class="hnum" style="color:#636366;">8</div><div class="hco">ABB</div><div class="htr" style="color:#636366;">📉 Slow</div></div>
+      </div>
+      <div class="miclbl">Most demanded skills across all companies</div>
+      <div class="sbrow"><span class="sbname">Python</span><div class="sbbg"><div class="sbf" style="width:96%;"></div></div><span class="sbpct">96%</span></div>
+      <div class="sbrow"><span class="sbname">SQL</span><div class="sbbg"><div class="sbf" style="width:84%;"></div></div><span class="sbpct">84%</span></div>
+      <div class="sbrow"><span class="sbname">Spark</span><div class="sbbg"><div class="sbf" style="width:71%;background:#30d158;"></div></div><span class="sbpct">71%</span></div>
+      <div class="sbrow"><span class="sbname">dbt</span><div class="sbbg"><div class="sbf" style="width:58%;background:#ffd60a;"></div></div><span class="sbpct" style="color:#ffd60a;">58%</span></div>
+      <div class="sbrow"><span class="sbname">Airflow</span><div class="sbbg"><div class="sbf" style="width:47%;background:#ff9f0a;"></div></div><span class="sbpct" style="color:#ff9f0a;">47%</span></div>
+    </div>
+    <div class="icards fi d2">
+      <div class="ic icg"><div class="ictag" style="color:#30d158;">🚀 Market signal</div><div class="ictitle">Google DeepMind hiring 3× faster than last month</div><div class="icbody">47 new postings this week. Your profile matches 91% of their open roles right now.</div><div class="icpills"><span class="icpill" style="background:rgba(48,209,88,.12);color:#30d158;border:0.5px solid rgba(48,209,88,.28);">91% match</span><span class="icpill" style="background:rgba(255,255,255,.05);color:#aeaeb2;">Zürich · Remote</span></div></div>
+      <div class="ic ico"><div class="ictag" style="color:#ff9f0a;">⚠️ Skill gap alert</div><div class="ictitle">Add dbt — unlock 15% more match score</div><div class="icbody">dbt appears in 58% of your target roles. Learning it moves avg from 74% → 89%.</div><div class="icpills"><span class="icpill" style="background:rgba(255,159,10,.1);color:#ff9f0a;border:0.5px solid rgba(255,159,10,.25);">+15% avg match</span><span class="icpill" style="background:rgba(255,255,255,.05);color:#aeaeb2;">58 roles affected</span></div></div>
+      <div class="ic icb"><div class="ictag" style="color:#2997ff;">📍 Location insight</div><div class="ictitle">Zürich is your #1 hub — 64% of top matches</div><div class="icbody">50 of your strongest-matched roles are in Zürich or offer Swiss remote.</div><div class="icpills"><span class="icpill" style="background:rgba(41,151,255,.12);color:#2997ff;border:0.5px solid rgba(41,151,255,.28);">50 roles local</span><span class="icpill" style="background:rgba(255,255,255,.05);color:#aeaeb2;">+12 remote CH</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHOWCASE: HMS TABLE -->
+<div class="showcase" id="intelligence" style="margin-top:80px;">
+  <div class="fi">
+    <div class="shey">Company Intelligence</div>
+    <h2 class="sht">Know who's<br>actually hiring.</h2>
+    <p class="shd">The HMS (Hiring Market Score) ranks every company by real hiring velocity, your personal skill match and Glassdoor rating — updated live from your searches. Stop guessing. Start targeting.</p>
+  </div>
+  <div class="aframe fi d2">
+    <div class="afch"><div class="afcd" style="background:#ff5f57;"></div><div class="afcd" style="background:#febc2e;"></div><div class="afcd" style="background:#28c840;"></div><div class="afcl">Market Intelligence — HMS Table</div></div>
+    <div class="afcon">
+      <div class="ftb"><span style="font-size:10px;font-weight:700;color:#f5f5f7;">🏢 Hiring Market Intelligence</span><span style="font-size:8px;color:#636366;background:#3a3a3c;padding:2px 6px;border-radius:6px;margin-left:4px;">HMS Score</span><div style="margin-left:auto;display:flex;gap:4px;"><div class="ffi">Search…</div><div class="ffi">Sort: HMS 🔥</div></div></div>
+      <table class="ftbl">
+        <thead><tr><th style="text-align:left;padding-left:12px;">Company</th><th>HMS</th><th>Revenue</th><th>Glassdoor</th><th>Jobs</th><th>Match</th><th>Activity</th><th>Skills</th></tr></thead>
+        <tbody>
+          <tr><td style="padding-left:12px;"><span class="fco" style="background:#4285f4;">G</span>Google DeepMind</td><td><div class="fhb"><div class="fhbbg"><div class="fhbf" style="width:94%;background:#30d158;"></div></div><span class="fhbn" style="color:#30d158;">94</span></div></td><td>$307B</td><td style="color:#ffd60a;">4.2 ★</td><td><span class="fjb">47</span></td><td style="color:#30d158;font-weight:700;">91%</td><td>🚀</td><td><span class="fst">Python</span><span class="fst">SQL</span></td></tr>
+          <tr><td style="padding-left:12px;"><span class="fco" style="background:#635bff;">S</span>Stripe</td><td><div class="fhb"><div class="fhbbg"><div class="fhbf" style="width:88%;background:#30d158;"></div></div><span class="fhbn" style="color:#30d158;">88</span></div></td><td>$14B</td><td style="color:#30d158;">4.4 ★</td><td><span class="fjb">31</span></td><td style="color:#30d158;font-weight:700;">84%</td><td>🚀</td><td><span class="fst">Go</span><span class="fst">K8s</span></td></tr>
+          <tr><td style="padding-left:12px;"><span class="fco" style="background:#00a8e0;">Sn</span>Snowflake</td><td><div class="fhb"><div class="fhbbg"><div class="fhbf" style="width:82%;background:#30d158;"></div></div><span class="fhbn" style="color:#30d158;">82</span></div></td><td>$2.8B</td><td style="color:#aeaeb2;">4.0 ★</td><td><span class="fjb">28</span></td><td style="color:#30d158;font-weight:700;">79%</td><td>📈</td><td><span class="fst">dbt</span><span class="fst">SQL</span></td></tr>
+          <tr><td style="padding-left:12px;"><span class="fco" style="background:#ff6a00;">Z</span>Zalando</td><td><div class="fhb"><div class="fhbbg"><div class="fhbf" style="width:76%;background:#ffd60a;"></div></div><span class="fhbn" style="color:#ffd60a;">76</span></div></td><td>$10B</td><td style="color:#aeaeb2;">3.9 ★</td><td><span class="fjb">22</span></td><td style="color:#ffd60a;font-weight:700;">72%</td><td>📈</td><td><span class="fst">Spark</span></td></tr>
+          <tr><td style="padding-left:12px;"><span class="fco" style="background:#0072b1;">Si</span>Siemens</td><td><div class="fhb"><div class="fhbbg"><div class="fhbf" style="width:71%;background:#ffd60a;"></div></div><span class="fhbn" style="color:#ffd60a;">71</span></div></td><td>$87B</td><td style="color:#aeaeb2;">3.8 ★</td><td><span class="fjb">19</span></td><td style="color:#ffd60a;font-weight:700;">68%</td><td>⚖️</td><td><span class="fst">PLC</span></td></tr>
+        </tbody>
+      </table>
+      <div class="affd"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHOWCASE: COMPANY DASH -->
+<div class="showcase rev">
+  <div class="fi">
+    <div class="shey">Company Dashboard</div>
+    <h2 class="sht">Every company,<br>in depth.</h2>
+    <p class="shd">Click any company and get posting trends, required skills, intelligent alerts, active listings and live reports — all derived from your own searches, not generic data.</p>
+  </div>
+  <div class="aframe fi d2">
+    <div class="afch"><div class="afcd" style="background:#ff5f57;"></div><div class="afcd" style="background:#febc2e;"></div><div class="afcd" style="background:#28c840;"></div><div class="afcl">Company Dashboard — Google DeepMind</div></div>
+    <div class="afcon">
+      <div class="fcotop">
+        <div style="background:#2c2c2e;border:0.5px solid var(--bd);color:#aeaeb2;border-radius:5px;padding:3px 9px;font-size:9px;">← Back</div>
+        <div style="display:flex;align-items:center;gap:7px;margin-right:auto;">
+          <div class="fcoav">G</div>
+          <div><div style="font-size:12px;font-weight:700;color:#f5f5f7;">Google DeepMind</div><div style="font-size:8px;color:#636366;">GOOGL · Technology</div></div>
+        </div>
+        <div class="fhms">HMS 94</div>
+        <div style="display:flex;gap:2px;"><div style="background:#3a3a3c;border:0.5px solid var(--bd);color:#aeaeb2;border-radius:4px;padding:2px 7px;font-size:8px;">7d</div><div style="background:transparent;border:0.5px solid var(--bd);color:#636366;border-radius:4px;padding:2px 7px;font-size:8px;">30d</div></div>
+      </div>
+      <div class="fmet">
+        <div class="fdm"><div class="fdml">Revenue</div><div class="fdmv">$307B</div></div>
+        <div class="fdm"><div class="fdml">Employees</div><div class="fdmv">182k</div></div>
+        <div class="fdm"><div class="fdml">Jobs in DB</div><div class="fdmv" style="color:#0a84ff;">47</div></div>
+        <div class="fdm"><div class="fdml">Avg Match</div><div class="fdmv" style="color:#30d158;">91%</div></div>
+        <div class="fdm"><div class="fdml">Glassdoor</div><div class="fdmv">4.2 ★</div></div>
+      </div>
+      <div class="ftabs"><div class="ftab act">📊 Overview</div><div class="ftab">🏢 About</div><div class="ftab">📄 Reports</div></div>
+      <div class="fdash">
+        <div class="fdc"><div class="fdct">Job Postings — 7 days</div><div style="height:90px;position:relative;"><canvas id="fch"></canvas></div></div>
+        <div class="fdc"><div class="fdct">Top Skills Required</div>
+          <div class="fskr"><span class="fskn">Python</span><div class="fskb"><div class="fskf" style="width:98%;background:#0a84ff;"></div></div><span class="fskp" style="color:#0a84ff;">98%</span></div>
+          <div class="fskr"><span class="fskn">TensorFlow</span><div class="fskb"><div class="fskf" style="width:82%;background:#0a84ff;"></div></div><span class="fskp" style="color:#0a84ff;">82%</span></div>
+          <div class="fskr"><span class="fskn">Kubernetes</span><div class="fskb"><div class="fskf" style="width:61%;background:#ffd60a;"></div></div><span class="fskp" style="color:#ffd60a;">61%</span></div>
+          <div class="fskr"><span class="fskn">dbt</span><div class="fskb"><div class="fskf" style="width:38%;background:#ff9f0a;"></div></div><span class="fskp" style="color:#ff9f0a;">38%</span></div>
+        </div>
+      </div>
+      <div class="falerts">
+        <div class="falert"><div class="fat">🚀 Hiring 3× above average this week</div><div class="fas">47 postings in 7 days. Your match: 91%. Act fast.</div></div>
+        <div class="falert warn"><div class="fat">⚠️ Skill gap: Kubernetes in 61% of roles</div><div class="fas">Adding K8s could push your avg match above 90%.</div></div>
+      </div>
+      <div class="affd"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="wrap center">
+  <div class="ey fi">What people say</div>
+  <h2 class="h2 fi">They found their job.<br>You're next.</h2>
+  <div class="tgrid">
+    <div class="tcard fi d1">
+      <div class="tstars">★★★★★</div>
+      <p class="tquote">"I was applying blindly for months. JobMatcher showed me my <strong>actual skill score per role</strong> and I focused only on 80%+ matches. Got 4 interviews in 2 weeks."</p>
+      <div class="tauth">
+        <div class="tav" style="background:linear-gradient(135deg,#0a84ff,#30d158);">MR</div>
+        <div><div class="tname">Marco R.</div><div class="trole">Data Engineer · Hired at Stripe</div></div>
+        <div style="margin-left:auto;"><span class="tres">✓ 18 days</span></div>
+      </div>
+    </div>
+    <div class="tcard fi d2">
+      <div class="tstars">★★★★★</div>
+      <p class="tquote">"The <strong>Market Intelligence table</strong> is insane. I could see Google was hiring 3× faster than Zalando that week. I prioritised them and got the offer within a month."</p>
+      <div class="tauth">
+        <div class="tav" style="background:linear-gradient(135deg,#bf5af2,#ff9f0a);">SL</div>
+        <div><div class="tname">Sara L.</div><div class="trole">ML Engineer · Hired at Google DeepMind</div></div>
+        <div style="margin-left:auto;"><span class="tres">✓ 31 days</span></div>
+      </div>
+    </div>
+    <div class="tcard fi d3">
+      <div class="tstars">★★★★★</div>
+      <p class="tquote">"The skill gap alerts told me to learn dbt. I spent 2 weeks on it and my <strong>average match went from 64% to 88%</strong>. Completely changed my search."</p>
+      <div class="tauth">
+        <div class="tav" style="background:linear-gradient(135deg,#ffd60a,#ff453a);">TK</div>
+        <div><div class="tname">Tobias K.</div><div class="trole">Analytics Eng. · Hired at Snowflake</div></div>
+        <div style="margin-left:auto;"><span class="tres">✓ 24 days</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="wrap center" id="pricing">
+  <div class="ey fi">Pricing</div>
+  <h2 class="h2 fi">Simple, transparent pricing.</h2>
+  <p class="h2s fi">Start free. Upgrade when you're ready. Cancel any time.</p>
+  <div class="pgrid">
+    <div class="pcard fi d1">
+      <div class="pcname">Free</div>
+      <div class="pcdesc">Everything you need to get started.</div>
+      <div class="pcprice"><div class="pcamt"><sup>$</sup>0</div><div class="pcper">forever free</div></div>
+      <button class="pcbtn pcbg">Get started free</button>
+      <div class="pcdiv"></div>
+      <div class="pcf"><span class="pck">✓</span>3 job searches / day</div>
+      <div class="pcf"><span class="pck">✓</span>Up to 20 results / search</div>
+      <div class="pcf"><span class="pck">✓</span>Skill match scoring</div>
+      <div class="pcf"><span class="pck">✓</span>Basic analytics</div>
+      <div class="pcf"><span class="pck pcdim">✗</span><span class="pcdim">Market Intelligence</span></div>
+      <div class="pcf"><span class="pck pcdim">✗</span><span class="pcdim">Company dashboards</span></div>
+    </div>
+    <div class="pcard feat fi d2">
+      <div class="pcbdg">Most popular</div>
+      <div class="pcname">Pro</div>
+      <div class="pcdesc">Every competitive edge, unlocked.</div>
+      <div class="pcprice"><div class="pcamt"><sup>$</sup>19</div><div class="pcper">per month</div></div>
+      <button class="pcbtn pcbp">Start 30-day free trial</button>
+      <div class="pcdiv"></div>
+      <div class="pcf"><span class="pck">✓</span>Unlimited searches</div>
+      <div class="pcf"><span class="pck">✓</span>Up to 100 results / search</div>
+      <div class="pcf"><span class="pck">✓</span>Advanced skill matching</div>
+      <div class="pcf"><span class="pck">✓</span>Full analytics dashboard</div>
+      <div class="pcf"><span class="pck">✓</span>Market Intelligence + HMS table</div>
+      <div class="pcf"><span class="pck">✓</span>Company dashboards <span class="pctag">New</span></div>
+      <div class="pcf"><span class="pck">✓</span>Skill gap alerts + Live reports</div>
+    </div>
+    <div class="pcard fi d3">
+      <div class="pcname">Team</div>
+      <div class="pcdesc">For bootcamps, coaches and recruiting teams.</div>
+      <div class="pcprice"><div class="pcamt"><sup>$</sup>49</div><div class="pcper">per month · up to 5 seats</div></div>
+      <button class="pcbtn pcbg">Contact us</button>
+      <div class="pcdiv"></div>
+      <div class="pcf"><span class="pck">✓</span>Everything in Pro</div>
+      <div class="pcf"><span class="pck">✓</span>5 team seats</div>
+      <div class="pcf"><span class="pck">✓</span>Shared company watchlists</div>
+      <div class="pcf"><span class="pck">✓</span>Team analytics overview</div>
+      <div class="pcf"><span class="pck">✓</span>Priority support + onboarding</div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL CTA -->
+<div class="fcta">
+  <div class="fctabg"></div>
+  <div class="fctactr fi"><strong id="ctrn">847</strong> engineers found a new role through JobMatcher this month.</div>
+  <h2 class="fctat fi">Stop guessing.<br>Start matching.</h2>
+  <p class="fctas fi">Free for 30 days. No card required. Ready in 2 minutes.</p>
+  <div class="fctarow fi"><button class="btnhero">Create your free account →</button></div>
+  <div class="fctamic fi"><span>🔒 No credit card</span><span>⚡ 2-minute setup</span><span>✓ Cancel any time</span></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fbrand">
+    <div class="flogo">Job<span>Matcher</span></div>
+    <div class="ftag">Your job search, finally intelligent. Powered by real skill matching and live market data.</div>
+  </div>
+  <div><div class="fct">Product</div><a href="#" class="flink">Features</a><a href="#" class="flink">Market Intelligence</a><a href="#" class="flink">Pricing</a><a href="#" class="flink">Changelog</a></div>
+  <div><div class="fct">Company</div><a href="#" class="flink">About</a><a href="#" class="flink">Blog</a><a href="#" class="flink">Careers</a><a href="#" class="flink">Contact</a></div>
+  <div><div class="fct">Legal</div><a href="#" class="flink">Privacy Policy</a><a href="#" class="flink">Terms of Service</a><a href="#" class="flink">Cookie Policy</a></div>
+</footer>
+<div class="fbot">
+  <div class="fcopy">© 2025 JobMatcher Inc. All rights reserved.</div>
+  <div class="flegal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
+</div>
+
+<script>
+const io=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('vis');io.unobserve(x.target);}});},{threshold:0.08});
+document.querySelectorAll('.fi').forEach(el=>io.observe(el));
+
+const jobs=[
+  {title:'Senior Data Engineer',co:'Google DeepMind · Zürich',src:'LinkedIn',sc:'#0077b5',match:92,bar:'#30d158',tags:['Python','SQL','TF']},
+  {title:'Platform Engineer',co:'Stripe · Remote EU',src:'LinkedIn',sc:'#0077b5',match:87,bar:'#30d158',tags:['Go','K8s','AWS']},
+  {title:'Data Infra Engineer',co:'Snowflake · Remote',src:'Indeed',sc:'#e8711a',match:84,bar:'#30d158',tags:['dbt','SQL']},
+  {title:'Data Platform Lead',co:'Zalando · Berlin',src:'LinkedIn',sc:'#0077b5',match:78,bar:'#30d158',tags:['Spark','Kafka']},
+  {title:'ML Data Engineer',co:'Spotify · Stockholm',src:'Indeed',sc:'#e8711a',match:74,bar:'#ffd60a',tags:['Python','Luigi']},
+  {title:'Solutions Engineer',co:'Snowflake · Munich',src:'Glassdoor',sc:'#4285f4',match:71,bar:'#ffd60a',tags:['SQL','dbt']},
+];
+const c=document.getElementById('hcards');
+jobs.forEach((j,i)=>{
+  const sc=j.match>=80?'#30d158':j.match>=65?'#ffd60a':'#ff453a';
+  const el=document.createElement('div');
+  el.className='jcard';
+  el.innerHTML=`<div class="jcsrc"><div class="jcsdot" style="background:${j.sc}"></div><span class="jcslbl">${j.src}</span></div><div class="jctitle">${j.title}</div><div class="jcco">${j.co}</div><div class="jcmrow"><span class="jcmlbl">Skill match</span><span class="jcmval" style="color:${sc}">${j.match}%</span></div><div class="jcbar"><div class="jcfill" data-w="${j.match}" style="width:0%;background:${j.bar}"></div></div><div class="jctags">${j.tags.map(t=>`<span class="jctag">${t}</span>`).join('')}</div>`;
+  c.appendChild(el);
+  setTimeout(()=>{el.classList.add('show');setTimeout(()=>{const f=el.querySelector('.jcfill');f.style.width=f.dataset.w+'%';},300);},700+i*160);
+});
+
+const ctr=document.getElementById('ctrn');
+let cur=600,run=false;
+new IntersectionObserver(e=>{if(e[0].isIntersecting&&!run){run=true;const s=()=>{cur=Math.min(cur+8,847);ctr.textContent=cur.toLocaleString();if(cur<847)requestAnimationFrame(s);};requestAnimationFrame(s);}}).observe(ctr);
+
+new Chart(document.getElementById('fch'),{type:'bar',data:{labels:['M','T','W','T','F','S','S'],datasets:[{data:[5,8,12,7,11,2,2],backgroundColor:'rgba(10,132,255,.55)',borderColor:'#0a84ff',borderWidth:1.5,borderRadius:3,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#636366',font:{size:8}},grid:{display:false}},y:{ticks:{color:'#636366',font:{size:8}},grid:{color:'rgba(255,255,255,.05)'}}}}});
+</script>
 </body>
 </html>
